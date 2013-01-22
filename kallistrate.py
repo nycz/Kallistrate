@@ -15,8 +15,7 @@ class Canvas(QtGui.QWidget):
         self.radius = 30
         self.color = Qt.black
         self.image = QtGui.QImage(800,800, QtGui.QImage.Format_RGB32)
-        self.image.fill(QtGui.qRgb(55, 155, 155))
-        self.brush = QtGui.QBrush(self.color, Qt.SolidPattern)
+        self.image.fill(Qt.white)
         self.update()
         self.lastPoint = QtCore.QPoint()
         self.resize(self.image.size())
@@ -42,7 +41,8 @@ class Canvas(QtGui.QWidget):
     def drawLineTo(self, endPoint):
         painter = QtGui.QPainter(self.image)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setBrush(self.brush)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QtGui.QBrush(self.color, Qt.SolidPattern))
         self.drawStroke(painter, self.lastPoint, endPoint)
         self.modified = True
 
@@ -88,6 +88,29 @@ class MainWindow(QtGui.QMainWindow):
         scrollarea = QtGui.QScrollArea()
         scrollarea.setWidget(self.drawingArea)
 
+        toolbar = QtGui.QToolBar()
+
+        # Brush size
+        slider = QtGui.QSlider(Qt.Horizontal)
+        slider.setMaximumWidth(200)
+        slider.setRange(1,200)
+        slider.setValue(self.drawingArea.radius)
+        lbl = QtGui.QLabel(str(self.drawingArea.radius))
+        def setBrushSize(v):
+            lbl.setText(str(v))
+            self.drawingArea.radius = v/2
+        slider.valueChanged.connect(setBrushSize)
+
+        # Brush color
+        colorPicker = QtGui.QPushButton()
+
+
+        toolbar.addWidget(slider)
+        toolbar.addWidget(lbl)
+        toolbar.addSeparator()
+        toolbar.addWidget(colorPicker)
+
+        self.addToolBar(toolbar)
         self.setCentralWidget(scrollarea)
         self.setWindowTitle('Kallistrate')
 
